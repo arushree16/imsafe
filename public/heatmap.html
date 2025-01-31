@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Heatmap - Women's Safety App</title>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* Your existing styles */
+        #map {
+            height: 100vh;
+            width: 100vw;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #safety-score {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .legend {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .legend strong {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+            font-size: 18px;
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 5px;
+        }
+
+        .legend span {
+            width: 20px;
+            height: 10px;
+            display: inline-block;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            padding: 10px;
+            background: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="heatmap-header">
+        <img src="/images/logo.png" alt="IAMSAFE Logo">
+        <h2>Safety Heatmap</h2>
+    </div>
+    <button class="back-button" onclick="window.location.href='/'">Back to Main</button>
+    <div id="map"></div>
+    <p id="safety-score">Fetching safety data...</p>
+    <div class="legend">
+        <strong>Safety Levels</strong>
+        <div><span style="background: red;"></span> Very Unsafe (0-30)</div>
+        <div><span style="background: orange;"></span> Unsafe (31-50)</div>
+        <div><span style="background: yellow;"></span> Moderate (51-70)</div>
+        <div><span style="background: green;"></span> Safe (71-100)</div>
+    </div>
+
+    <script>
+        // Your existing script with modified fetch URL
+        var map = L.map('map').setView([28.6139, 77.2090], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var heatLayer = L.heatLayer([], { radius: 40, blur: 25, maxZoom: 14, opacity: 0.7 }).addTo(map);
+        var lastLat = 0, lastLng = 0;
+        var userMarker;
+        var safeLocations = [
+            { lat: 28.6156, lng: 77.2089, name: "Police Station" },
+            { lat: 28.6172, lng: 77.2105, name: "Govt Office" },
+            { lat: 28.6190, lng: 77.2058, name: "Hospital" }
+        ];
+
+        safeLocations.forEach(loc => {
+            L.marker([loc.lat, loc.lng], { title: loc.name })
+                .bindPopup(`<b>${loc.name}</b><br>Safe Zone`)
+                .addTo(map);
+        });
+
+        function updateSafetyScore(lat, lng) {
+            // Updated fetch URL to use the proxy
+            fetch(`/safety-api/get_safety_score?lat=${lat}&lng=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('safety-score').innerText = 
+                        `Safety Score: ${data.safety_score} | Police Stations: ${data.police_stations} | Crimes: ${data.crime_count}`;
+
+                    var intensity = data.safety_score / 100;
+                    var color;
+                    if (data.safety_score <= 30) color = 'red';
+                    else if (data.safety_score <= 50) color = 'orange';
+                    else if (data.safety_score <= 70) color = 'yellow';
+                    else color = 'green';
+
+                    var circle = L.circle([lat, lng], {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.5,
+                        radius: 500
+                    }).addTo(map);
+
+                    heatLayer.addLatLng([lat, lng, intensity]);
+
+                    if (data.safety_score < 40) {
+                        alert("⚠️ Warning: This area has a low safety score!");
+                    }
+                })
+                .catch(error => console.error("Error fetching safety data:", error));
+        }
+
+        function trackLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(position => {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+
+                    if (Math.abs(lat - lastLat) > 0.0005 || Math.abs(lng - lastLng) > 0.0005) {
+                        lastLat = lat;
+                        lastLng = lng;
+                        map.setView([lat, lng], 14);
+                        updateSafetyScore(lat, lng);
+
+                        if (userMarker) {
+                            userMarker.setLatLng([lat, lng]);
+                        } else {
+                            userMarker = L.marker([lat, lng], { title: "You are here" })
+                                .bindPopup("You are here").addTo(map);
+                        }
+                    }
+                }, error => console.error("Error getting location:", error), { enableHighAccuracy: true });
+            } else {
+                alert("Geolocation not supported by this browser.");
+            }
+        }
+
+        trackLocation();
+    </script>
+</body>
+</html> 

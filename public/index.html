@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>I AM SAFE - Women Safety App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwjTfAbg_-HFu9Zr8fCZMNJsVF2XaTuFo"></script>
+</head>
+<body>
+    <button class="menu-toggle hidden" onclick="toggleMenu()">☰</button>
+    <nav class="nav-menu">
+        <h3>Menu</h3>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/heatmap.html">Safety Map</a></li>
+            <li><a href="#" onclick="showEmergencyContacts()">Emergency Contacts</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <img src="/assets/front.png" alt="IAMSAFE Logo">
+            <h1>I AM SAFE</h1>
+            <p>Your Personal Safety Companion</p>
+        </div>
+
+        <div id="authSection" class="auth-container">
+            <div id="loginForm">
+                <h2>Login</h2>
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button onclick="login()">Login</button>
+                <p>Don't have an account? <a href="#" onclick="toggleForms()">Register</a></p>
+            </div>
+
+            <div id="registerForm" class="hidden">
+                <h2>Register</h2>
+                <div class="form-group">
+                    <label for="registerName">Name:</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password:</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPhone">Phone Number:</label>
+                    <input type="tel" id="registerPhone" required>
+                </div>
+                <button onclick="register()">Register</button>
+                <p>Already have an account? <a href="#" onclick="toggleForms()">Login</a></p>
+            </div>
+        </div>
+
+        <img src="/assets/front.png" alt="Safety Illustration" class="login-image">
+
+        <div id="mainSection" class="main-section hidden">
+            <div class="welcome-section">
+                <h1>Welcome to I AM SAFE</h1>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Real-time Location Safety</h3>
+                        <p>Get instant safety alerts based on your current location</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Emergency Help</h3>
+                        <p>Quick access to emergency services and your trusted contacts</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-area"></i>
+                        <h3>Safety Heatmap</h3>
+                        <p>View safety scores for different areas</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="safety-info">
+                <h2>Current Location Safety</h2>
+                <div class="safety-details">
+                    <div class="safety-score-card">
+                        <h3>Safety Score</h3>
+                        <div class="score-circle" id="safetyScoreCircle">
+                            <span id="safetyScoreValue">...</span>
+                        </div>
+                        <p id="safetyStatus">Calculating safety score...</p>
+                    </div>
+                    <div class="safety-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Police Stations: </span>
+                            <span id="policeCount">...</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Recent Incidents: </span>
+                            <span id="incidentCount">...</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Location: </span>
+                            <span id="currentAddress">Fetching...</span>
+                        </div>
+                    </div>
+                    <div id="safetyAlerts" class="safety-alerts"></div>
+                </div>
+            </div>
+
+            <div class="place-rating-section">
+                <h2>Rate Places You've Visited</h2>
+                <div class="rating-form">
+                    <input type="text" id="placeName" placeholder="Place name" class="form-control">
+                    <input type="text" id="placeAddress" placeholder="Address" class="form-control">
+                    <div class="rating-stars">
+                        <span>Safety Rating:</span>
+                        <div class="stars">
+                            <i class="far fa-star" data-rating="1"></i>
+                            <i class="far fa-star" data-rating="2"></i>
+                            <i class="far fa-star" data-rating="3"></i>
+                            <i class="far fa-star" data-rating="4"></i>
+                            <i class="far fa-star" data-rating="5"></i>
+                        </div>
+                    </div>
+                    <textarea id="ratingComment" placeholder="Share your experience..." class="form-control"></textarea>
+                    <button onclick="submitPlaceRating()">Submit Rating</button>
+                </div>
+                <div id="userRatings" class="ratings-list">
+                    <!-- User ratings will be displayed here -->
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="emergency-button" onclick="sendHelpRequest()">EMERGENCY HELP</button>
+                <button onclick="window.location.href='/heatmap.html'">Safety Heatmap</button>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div id="emergencyContactsModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeEmergencyContacts()">&times;</span>
+                <h2>Emergency Contacts</h2>
+                
+                <div class="contact-form">
+                    <h3>Add New Contact</h3>
+                    <div class="form-group">
+                        <label for="contactName">Name:</label>
+                        <input type="text" id="contactName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPhone">Phone Number:</label>
+                        <input type="tel" id="contactPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactRelation">Relationship:</label>
+                        <input type="text" id="contactRelation" required>
+                    </div>
+                    <button onclick="addEmergencyContact()">Add Contact</button>
+                </div>
+
+                <div id="contactsList" class="contacts-list">
+                    <!-- Contacts will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLocation = null;
+        let currentRating = 0;
+
+        function toggleForms() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('registerForm').classList.toggle('hidden');
+        }
+
+        async function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const phoneNumber = document.getElementById('registerPhone').value;
+
+            try {
+                const response = await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password,
+                        phoneNumber
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('token', data.data.token);
+                    showMainSection();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Error registering: ' + error.message);
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('/api/users/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('token', data.data.token);
+                    showMainSection();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Error logging in: ' + error.message);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            showAuthSection();
+        }
+
+        function showMainSection() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('mainSection').classList.remove('hidden');
+            document.querySelector('.menu-toggle').classList.remove('hidden');
+            console.log('Map container:', document.getElementById('map'));
+            initMap();
+        }
+
+        function showAuthSection() {
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('mainSection').classList.add('hidden');
+            document.querySelector('.menu-toggle').classList.add('hidden');
+        }
+
+        // Check if user is logged in when page loads
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('token')) {
+                showMainSection();
+                initRatingStars();
+                loadPlaceRatings();
+            } else {
+                showAuthSection();
+            }
+        });
+
+        // Get current location function
+        async function getCurrentLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation is not supported by your browser'));
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        resolve({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        });
+                    },
+                    (error) => {
+                        reject(error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            });
+        }
+
+        async function initMap() {
+            try {
+                console.log('Starting map initialization');
+                currentLocation = await getCurrentLocation();
+                console.log('Current Location:', currentLocation);
+
+                // Show loading state
+                document.getElementById('mapLoading').style.display = 'block';
+                document.getElementById('map').style.display = 'none';
+
+                // Create map first
+                const mapDiv = document.getElementById('map');
+                mapDiv.style.display = 'block';
+                
+                const map = new google.maps.Map(mapDiv, {
+                    zoom: 15,
+                    center: { 
+                        lat: currentLocation.latitude, 
+                        lng: currentLocation.longitude 
+                    },
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    streetViewControl: false,
+                    zoomControl: true,
+                    mapTypeControl: false,
+                    fullscreenControl: false
+                });
+
+                console.log('Map initialized');
+
+                // Wait a moment for the map to be ready
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Get safety score for current location
+                const safetyResponse = await fetch(`/safety-api/get_safety_score?lat=${currentLocation.latitude}&lng=${currentLocation.longitude}`);
+                const safetyData = await safetyResponse.json();
+                
+                console.log('Safety Data:', safetyData);
+
+                // Determine safety color based on score
+                let safetyColor;
+                if (safetyData.safety_score <= 30) safetyColor = '#ff0000';
+                else if (safetyData.safety_score <= 50) safetyColor = '#ffa500';
+                else if (safetyData.safety_score <= 70) safetyColor = '#ffff00';
+                else safetyColor = '#00ff00';
+
+                // Add safety circle around current location
+                new google.maps.Circle({
+                    map: map,
+                    center: { 
+                        lat: currentLocation.latitude, 
+                        lng: currentLocation.longitude 
+                    },
+                    radius: 500, // 500 meters radius
+                    fillColor: safetyColor,
+                    fillOpacity: 0.2,
+                    strokeColor: safetyColor,
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2
+                });
+
+                // Create a more prominent marker for current location
+                const userMarker = new google.maps.Marker({
+                    position: { 
+                        lat: currentLocation.latitude, 
+                        lng: currentLocation.longitude 
+                    },
+                    map: map,
+                    title: 'Your Current Location',
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: '#4285F4',
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2
+                    },
+                    animation: google.maps.Animation.DROP
+                });
+
+                // Add info window for current location with safety info
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="padding: 10px;">
+                            <h3 style="margin: 0 0 5px 0;">Your Current Location</h3>
+                            <p style="margin: 0;">${currentLocation.address || 'Location found'}</p>
+                            <div style="margin-top: 10px;">
+                                <strong>Safety Score: ${safetyData.safety_score}/100</strong><br>
+                                <span style="color: ${safetyColor}">●</span> 
+                                ${safetyData.safety_score > 70 ? 'Safe Area' : 
+                                  safetyData.safety_score > 50 ? 'Moderate Safety' :
+                                  safetyData.safety_score > 30 ? 'Exercise Caution' : 'High Risk Area'}
+                            </div>
+                            <div style="margin-top: 5px; font-size: 0.9em;">
+                                <p>Nearby Police Stations: ${safetyData.police_stations}</p>
+                                <p>Recent Incidents: ${safetyData.crime_count}</p>
+                            </div>
+                        </div>
+                    `
+                });
+
+                // Show info window when marker is clicked
+                userMarker.addListener('click', () => {
+                    infoWindow.open(map, userMarker);
+                });
+
+                // Display location info with safety score
+                document.getElementById('locationInfo').innerHTML = `
+                    <div class="location-info-card">
+                        <h3><i class="fas fa-map-marker-alt"></i> Current Location</h3>
+                        <p>${currentLocation.address || 'Location found'}</p>
+                        <div class="safety-indicator" style="background-color: ${safetyColor}">
+                            Safety Score: ${safetyData.safety_score}/100
+                        </div>
+                        <p class="coordinates">
+                            Latitude: ${currentLocation.latitude.toFixed(6)}<br>
+                            Longitude: ${currentLocation.longitude.toFixed(6)}
+                        </p>
+                    </div>
+                `;
+
+                // Check area safety
+                checkAreaSafety();
+
+                // Hide loading state
+                document.getElementById('mapLoading').style.display = 'none';
+
+            } catch (error) {
+                console.error('Error initializing map:', error);
+                document.getElementById('mapLoading').innerHTML = 'Error loading map: ' + error.message;
+                alert('Error getting location: ' + error.message);
+            }
+        }
+
+        async function sendHelpRequest() {
+            try {
+                if (!currentLocation) {
+                    currentLocation = await getCurrentLocation();
+                }
+                
+                // Show loading state
+                const emergencyButton = document.querySelector('.emergency-button');
+                const originalText = emergencyButton.textContent;
+                emergencyButton.textContent = 'Sending...';
+                emergencyButton.disabled = true;
+
+                const response = await fetch('/api/help-requests/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({
+                        location: currentLocation,
+                        description: 'Need immediate assistance'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Show success message
+                    showEmergencyAlert('success', 'Help is on the way! Emergency contacts have been notified.');
+                } else {
+                    showEmergencyAlert('error', 'Failed to send help request. Please try again.');
+                }
+            } catch (error) {
+                showEmergencyAlert('error', 'Error: ' + error.message);
+            } finally {
+                // Reset button state
+                const emergencyButton = document.querySelector('.emergency-button');
+                emergencyButton.textContent = 'EMERGENCY HELP';
+                emergencyButton.disabled = false;
+            }
+        }
+
+        function showEmergencyAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `emergency-alert ${type}`;
+            alertDiv.innerHTML = `
+                <div class="alert-content">
+                    <i class="${type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(alertDiv);
+
+            // Remove alert after 5 seconds
+            setTimeout(() => {
+                alertDiv.classList.add('fade-out');
+                setTimeout(() => alertDiv.remove(), 500);
+            }, 5000);
+        }
+
+        async function checkAreaSafety() {
+            try {
+                const response = await fetch(`/safety-api/get_safety_score?lat=${currentLocation.latitude}&lng=${currentLocation.longitude}`);
+                const data = await response.json();
+                
+                // Update safety score
+                const scoreCircle = document.getElementById('safetyScoreCircle');
+                const scoreValue = document.getElementById('safetyScoreValue');
+                const safetyStatus = document.getElementById('safetyStatus');
+                
+                let color;
+                let status;
+                if (data.safety_score <= 30) {
+                    color = '#dc3545';
+                    status = 'High Risk Area';
+                } else if (data.safety_score <= 50) {
+                    color = '#ffc107';
+                    status = 'Exercise Caution';
+                } else if (data.safety_score <= 70) {
+                    color = '#17a2b8';
+                    status = 'Moderately Safe';
+                } else {
+                    color = '#28a745';
+                    status = 'Safe Area';
+                }
+                
+                scoreCircle.style.background = color;
+                scoreValue.textContent = data.safety_score;
+                safetyStatus.textContent = status;
+                
+                // Update stats
+                document.getElementById('policeCount').textContent = data.police_stations;
+                document.getElementById('incidentCount').textContent = data.crime_count;
+                document.getElementById('currentAddress').textContent = currentLocation.address || 'Location found';
+                
+                // Show alerts if needed
+                if (data.safety_score < 50) {
+                    document.getElementById('safetyAlerts').innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Exercise caution in this area. Stay alert and avoid traveling alone if possible.
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error checking area safety:', error);
+            }
+        }
+
+        function displaySafetyInfo(safetyData) {
+            const safetyDiv = document.getElementById('safetyAlerts');
+            if (safetyData.safetyScore !== null) {
+                safetyDiv.innerHTML += `
+                    <div class="safety-info">
+                        <h3>Area Safety Information:</h3>
+                        <p>Safety Score: ${safetyData.safetyScore}/100</p>
+                        <p>Nearby Police Stations: ${safetyData.policeStations}</p>
+                        <p>Recent Crime Reports: ${safetyData.crimeCount}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function toggleMenu() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        }
+
+        // Add click handlers for nav menu items
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelector('.nav-menu').classList.remove('active');
+            });
+        });
+
+        function showEmergencyContacts() {
+            document.querySelector('.nav-menu').classList.remove('active');
+            document.getElementById('emergencyContactsModal').classList.remove('hidden');
+            loadEmergencyContacts();
+        }
+
+        function closeEmergencyContacts() {
+            document.getElementById('emergencyContactsModal').classList.add('hidden');
+        }
+
+        async function loadEmergencyContacts() {
+            try {
+                const response = await fetch('/api/emergency-contacts', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const contactsList = document.getElementById('contactsList');
+                    contactsList.innerHTML = data.data.map(contact => `
+                        <div class="contact-card">
+                            <div class="contact-info">
+                                <h4>${contact.name}</h4>
+                                <p>${contact.phoneNumber}</p>
+                                <p>${contact.relationship}</p>
+                            </div>
+                            <button class="delete-contact" onclick="deleteContact('${contact._id}')">&times;</button>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading contacts:', error);
+            }
+        }
+
+        async function addEmergencyContact() {
+            const name = document.getElementById('contactName').value;
+            const phoneNumber = document.getElementById('contactPhone').value;
+            const relationship = document.getElementById('contactRelation').value;
+
+            try {
+                const response = await fetch('/api/emergency-contacts/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({ name, phoneNumber, relationship })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    loadEmergencyContacts();
+                    // Clear form
+                    document.getElementById('contactName').value = '';
+                    document.getElementById('contactPhone').value = '';
+                    document.getElementById('contactRelation').value = '';
+                }
+            } catch (error) {
+                console.error('Error adding contact:', error);
+            }
+        }
+
+        async function deleteContact(contactId) {
+            if (confirm('Are you sure you want to delete this contact?')) {
+                try {
+                    const response = await fetch(`/api/emergency-contacts/${contactId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        }
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        loadEmergencyContacts();
+                    }
+                } catch (error) {
+                    console.error('Error deleting contact:', error);
+                }
+            }
+        }
+
+        function initRatingStars() {
+            const stars = document.querySelectorAll('.stars i');
+            stars.forEach(star => {
+                star.addEventListener('mouseover', () => highlightStars(star.dataset.rating));
+                star.addEventListener('mouseout', () => highlightStars(currentRating));
+                star.addEventListener('click', () => setRating(star.dataset.rating));
+            });
+        }
+
+        function highlightStars(rating) {
+            const stars = document.querySelectorAll('.stars i');
+            stars.forEach(star => {
+                star.classList.remove('fas', 'far');
+                star.classList.add(star.dataset.rating <= rating ? 'fas' : 'far');
+            });
+        }
+
+        function setRating(rating) {
+            currentRating = rating;
+            highlightStars(rating);
+        }
+
+        async function submitPlaceRating() {
+            if (!currentRating) {
+                alert('Please select a rating');
+                return;
+            }
+
+            const placeName = document.getElementById('placeName').value;
+            const placeAddress = document.getElementById('placeAddress').value;
+            const comment = document.getElementById('ratingComment').value;
+
+            try {
+                const response = await fetch('/api/place-ratings/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({
+                        placeName,
+                        placeAddress,
+                        rating: currentRating,
+                        comment
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Rating submitted successfully');
+                    loadPlaceRatings();
+                    // Clear form
+                    document.getElementById('placeName').value = '';
+                    document.getElementById('placeAddress').value = '';
+                    document.getElementById('ratingComment').value = '';
+                    currentRating = 0;
+                    highlightStars(0);
+                }
+            } catch (error) {
+                console.error('Error submitting rating:', error);
+            }
+        }
+
+        async function loadPlaceRatings() {
+            try {
+                const response = await fetch('/api/place-ratings', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const ratingsDiv = document.getElementById('userRatings');
+                    ratingsDiv.innerHTML = data.data.map(rating => `
+                        <div class="rating-card">
+                            <h4>${rating.placeName}</h4>
+                            <p>${rating.placeAddress}</p>
+                            <div class="rating">
+                                ${'★'.repeat(rating.rating)}${'☆'.repeat(5-rating.rating)}
+                            </div>
+                            <p>${rating.comment}</p>
+                            <div class="date">
+                                Rated by ${rating.userId.name} on ${new Date(rating.createdAt).toLocaleDateString()}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading ratings:', error);
+            }
+        }
+    </script>
+</body>
+</html> 
