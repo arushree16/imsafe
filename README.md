@@ -45,6 +45,10 @@ Run the backend Python server:
 ```bash
 python app.py
 ```
+Run the backend Node server:
+```bash
+node server.js
+```
 Then, start the frontend:
 ```bash
 npm start
