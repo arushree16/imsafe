@@ -62,12 +62,6 @@ This will launch the web app in your browser.
 3. **Commit** changes and push to your fork.
 4. **Submit a Pull Request (PR)** for review.
 
-## 📜 License
-MIT License. Feel free to use and modify the code.
 
-## 📩 Contact
-For queries or collaborations, reach out at [your email/contact].
-
----
 ### 🌍 Stay Safe, Stay Aware!
 
